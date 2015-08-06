@@ -43,6 +43,18 @@ namespace zypp
    * an ordinary filter iterator. Do not provide filter iterators
    * here, if there is no index table for it.
    *
+   * For most (*Begin,*End) iterator-pairs there's also an \ref Iterable
+   * provided, so you can use then in range-based for loops:
+   * \code
+   *   // classic:
+   *   for_( it, pool.filterBegin(myfilter), pool.filterEnd(myfilter) )
+   *   { ... }
+   *
+   *   // range based:
+   *   for ( const PoolItem & pi : pool.filter(myfilter) )
+   *   { ... }
+   * \endcode
+   *
    * \include n_ResPool_nomorenameiter
   */
   class ResPool
@@ -110,6 +122,10 @@ namespace zypp
       template<class _Filter>
       filter_iterator<_Filter,const_iterator> filterEnd( const _Filter & filter_r ) const
       { return make_filter_end( filter_r, *this ); }
+
+      template<class _Filter>
+      Iterable<filter_iterator<_Filter,const_iterator>> filter( const _Filter & filter_r ) const
+      { return makeIterable( filterBegin( filter_r ), filterEnd( filter_r ) ); }
       //@}
 
       /** \name Iterate over all PoolItems by status.
@@ -136,6 +152,9 @@ namespace zypp
 
       filter_iterator<filter::ByStatus,const_iterator> byStatusEnd( const filter::ByStatus & filter_r ) const
       { return make_filter_end( filter_r, *this ); }
+
+      Iterable<filter_iterator<filter::ByStatus,const_iterator>> byStatus( const filter::ByStatus & filter_r ) const
+      { return makeIterable( byStatusBegin( filter_r ), byStatusEnd( filter_r ) ); }
       //@}
 
     public:
@@ -204,6 +223,10 @@ namespace zypp
       /** Takes a \ref sat::Solvable::ident string. */
       byIdent_iterator byIdentEnd( IdString ident_r ) const
       { return byIdentEnd( ByIdent(ident_r) ); }
+
+      Iterable<@_iterator> @( const ResKind & kind_r ) const
+      { return makeIterable( @Begin( kind_r ), @End( kind_r ) ); }
+
      //@}
 
     public:
@@ -225,6 +248,13 @@ namespace zypp
       template<class _Res>
           byKind_iterator byKindEnd() const
       { return make_filter_end( resfilter::byKind<_Res>(), *this ); }
+
+      Iterable<byKind_iterator> byKind( const ResKind & kind_r ) const
+      { return makeIterable( byKindBegin( kind_r ), byKindEnd( kind_r ) ); }
+
+      template<class _Res>
+      Iterable<byKind_iterator> byKind() const
+      { return makeIterable( byKindBegin<_Res>(), byKindEnd<_Res>() ); }
       //@}
 
     public:
